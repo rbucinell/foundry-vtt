@@ -8,7 +8,6 @@ let renderInlineRoll = function( roll )
 {
 	let encodedJSON = encodeURI(JSON.stringify(roll.toJSON()));
 	const faDice = `fa-dice${roll.terms.find( t => t instanceof Die ).faces === 20?'-d20':''}`;
-    console.log( faDice );
 	return `<a class="inline-roll inline-result" data-roll=${encodedJSON} title="${roll.formula}"><i class="fas ${faDice}"></i>${roll.total}</a>`
 }
 

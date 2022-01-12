@@ -1,20 +1,24 @@
+/**
+ * Renders the provided roll as an inline anchor tag
+ * 
+ * @param {Roll} roll The evaulated roll to inject into the display
+ * @returns complied HTML for a Chat Message 
+ */
 let renderInlineRoll = function( roll )
 {
-	let rollJSONstr = encodeURI(JSON.stringify(roll.toJSON()));
-	const faDice = `fa-dice${attackRoll.terms.find( t => t instanceof Die ).faces === 20?'-20':''}`;
-	
-	return 
-	`<a class="inline-roll inline-result" title="${roll.formula}" data-roll="${rollJSONstr}">
-		<i class="fas ${faDice}" /> ${roll.total}
-	</a>`;
+	let encodedJSON = encodeURI(JSON.stringify(roll.toJSON()));
+	const faDice = `fa-dice${roll.terms.find( t => t instanceof Die ).faces === 20?'-d20':''}`;
+    console.log( faDice );
+	return `<a class="inline-roll inline-result" data-roll=${encodedJSON} title="${roll.formula}"><i class="fas ${faDice}"></i>${roll.total}</a>`
 }
 
-
 /**
-*	attacker: Actor5e
-	target: Actor5e
-	weapon: Item53 (of type='weapon')
-**/
+ * Makes attack and damage rolls for an attack.
+ * 
+ * @param {Actor5e} attacker The attacking actor
+ * @param {Item} weapon the weapon (currently locked to scimitar stats)
+ * @returns {object} - contains rolls and Nat1/20 flags
+ */
 let makeAttack = async function( attacker, weapon )
 {
 	if( attacker === undefined)
@@ -64,11 +68,12 @@ let makeAttack = async function( attacker, weapon )
 }
 
 let ossu = game.user.character;
-
 let weapon = null, weapon2 = null;
+
+//Cause I'm lazy and just want to ctrl+a,ctrl+c,ctrl+v
 if( location.href === 'https://demo.foundryvtt.com/game' )
 {
-    weapon = ossu.data.items.find( item => item.data.type === 'weapon');
+    weapon  = ossu.data.items.find( item => item.data.type === 'weapon');
     weapon2 = ossu.data.items.find( item => item.data.type === 'weapon');
 }
 else
@@ -80,12 +85,7 @@ let mainhand = await makeAttack( ossu, weapon );
 let offhand  = await makeAttack( ossu, weapon2 );
 
 ChatMessage.create({ content:
-    `Mainhand attack 
-    <a class="inline-roll inline-result" data-roll=${encodeURI(JSON.stringify(mainhand.attack.toJSON()))} title="${mainhand.attack.formula}"><i class="fas fa-dice-d20"></i>${mainhand.attack.total}</a> dealing 
-    <a class="inline-roll inline-result" data-roll=${encodeURI(JSON.stringify(mainhand.damage.toJSON()))} title="${mainhand.attack.formula}"><i class="fas fa-dice"></i>${mainhand.damage.total}</a> damage. 
+    `Main attack ${renderInlineRoll(mainhand.attack)} dealing ${renderInlineRoll(mainhand.damage)} damage.
     <br> 
-    Offhand attack 
-    <a class="inline-roll inline-result" data-roll=${encodeURI(JSON.stringify(offhand.attack.toJSON()))} title="${offhand.attack.formula}"><i class="fas fa-dice-d20"></i>${offhand.attack.total}</a> dealing 
-    <a class="inline-roll inline-result" data-roll=${encodeURI(JSON.stringify(offhand.damage.toJSON()))} title="${offhand.attack.formula}"><i class="fas fa-dice"></i>${offhand.damage.total}</a> damage`
+    Offhand attack  ${renderInlineRoll(offhand.attack)} dealing ${renderInlineRoll(offhand.damage)} damage.`
 });
-//ChatMessage.create({ content:`Mainhand attack ${renderInlineRoll(mainhand.attack)} dealing ${renderInlineRoll(mainhand.damage)} damage. Offhand attack <a class="inline-roll inline-result" title="1d20"><i class="fas fa-dice-d20"></i>${offhand.attack.total}</a> dealing <a class="inline-roll inline-result" title="1d6"><i class="fas fa-dice-six"></i>${offhand.damage.total}</a> damage`});
